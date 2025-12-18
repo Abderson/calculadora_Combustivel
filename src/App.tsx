@@ -1,7 +1,7 @@
 // 📦 IMPORTAÇÕES - Trazendo coisas de fora para nosso código
 import React from "react"; // Importa o React, que é nossa biblioteca para criar páginas interativas
 import './index.css'; // Importa nossos estilos de CSS (cores, tamanhos, etc.)
-import { useState } from "react"; // Importa uma função especial do React que nos deixa guardar informações
+import { useState , useEffect } from "react"; // Importa uma função especial do React que nos deixa guardar informações
 
 import LogoImg from './assets/logo.png'; // Importa nossa imagem do logo
 
@@ -35,8 +35,19 @@ export const App: React.FC = () => {
   const [gasolinaCalculado, setGasolinaCalculado] = useState(''); // Preço da gasolina que foi usado no cálculo
   const [relacaoCalculada, setRelacaoCalculada] = useState(0);    // O resultado da conta (álcool ÷ gasolina)
   
-  // 📚 CAIXINHA PARA GUARDAR O HISTÓRICO
-  const [historico, setHistorico] = useState<HistoricoCalculo[]>([]); // Uma lista de todos os cálculos já feitos
+  // 📚 CAIXINHA PARA GUARDAR O HISTÓRICO - Carregar o histórico salvo no localStorage ao iniciar
+  const [historico, setHistorico] = useState<HistoricoCalculo[]>(() => {
+    const historicoSalvo = localStorage.getItem('historicoCalculos');
+    return historicoSalvo ? JSON.parse(historicoSalvo) : [];
+  });
+
+  // 💾 SALVAR O HISTÓRICO NO LOCALSTORAGE - Sempre que o histórico mudar, atualiza o que está salvo
+  useEffect(() => {
+    localStorage.setItem('historicoCalculos', JSON.stringify(historico));
+  }, [historico]);
+
+
+
 
   // 🧮 FUNÇÃO PARA FAZER O CÁLCULO - É chamada quando clicamos no botão "Calcular"
   function calcular(event: React.FormEvent) {
@@ -61,7 +72,7 @@ export const App: React.FC = () => {
 
     // 📝 ADICIONAR NO HISTÓRICO - Criar um novo registro para guardar
     const novoCalculo: HistoricoCalculo = {
-      id: historico.length + 1,           // Um número único (1, 2, 3, 4...)
+      id: Date.now(),                     // Um número único baseado no timestamp atual
       alcool: alcoolInput,                // O preço do álcool que foi digitado
       gasolina: gasolinaInput,            // O preço da gasolina que foi digitado
       relacao: calculo,                   // O resultado da divisão
@@ -209,7 +220,7 @@ export const App: React.FC = () => {
         )}
 
       </main>  {/* 📦 Fim do container principal */}
-    </div> // {/* 📦 Fim da div principal */}
+    </div>// {/* 📦 Fim da div principal */}
   ); // 🔚 Fim do return - fim da parte visual
 } // 🔚 Fim da função App - fim da nossa calculadora!
 
